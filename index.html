@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Buýt &amp; Bến xe Việt Nam - Tra cứu tuyến &amp; Lộ trình Offline (34 Tỉnh/TP)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#1e3a8a'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Custom scrollbars and phone shell polish */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .thin-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .thin-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-up {
+      animation: fadeSlideUp 0.18s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-200 via-blue-100/70 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 flex items-center justify-center p-0 sm:p-4 md:p-6 transition-colors duration-200">
+  <!-- Vertical Smartphone Shell -->
+  <div id="phoneShell" class="w-full max-w-[440px] h-[100dvh] sm:h-[860px] sm:max-h-[92vh] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 sm:rounded-[38px] sm:border-[8px] sm:border-slate-800 dark:sm:border-slate-700 shadow-2xl flex flex-col overflow-hidden relative">
+
+    <!-- Top Status / App Header -->
+    <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900 text-white px-4 pt-3.5 pb-3 shrink-0 shadow-md z-20">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shrink-0">
+            <!-- Inline SVG Bus Icon -->
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 6v6" />
+              <path d="M16 6v6" />
+              <path d="M2 12h20" />
+              <path d="M7 18h10" />
+              <rect width="16" height="16" x="4" y="3" rx="2" />
+              <path d="M6 19v1" />
+              <path d="M18 19v1" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-sm font-extrabold tracking-tight truncate">Buýt &amp; Bến xe VN</h1>
+              <span id="headerProvinceBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-400 text-slate-950 shrink-0">Hà Nội</span>
+            </div>
+            <p class="text-[11px] text-blue-100 dark:text-slate-300 truncate">Tra cứu tuyến &amp; Lộ trình Offline • 34 Tỉnh/TP</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            id="btnQuickSync"
+            type="button"
+            title="Đồng bộ dữ liệu Gemini"
+            class="p-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 transition text-white"
+          >
+            <svg id="iconQuickSync" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+              <path d="M16 16h5v5" />
+            </svg>
+          </button>
+          <button
+            id="btnThemeToggle"
+            type="button"
+            title="Đổi giao diện Sáng / Tối"
+            class="p-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 transition text-white"
+          >
+            <svg id="iconSun" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+            </svg>
+            <svg id="iconMoon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Province / City Selector Bar (34 Provinces & Centrally Governed Cities) -->
+      <div class="mt-2.5 flex items-center gap-2">
+        <div class="relative flex-1 min-w-0">
+          <select
+            id="provinceSelect"
+            aria-label="Chọn tỉnh hoặc thành phố trực thuộc Trung ương"
+            class="w-full appearance-none rounded-xl bg-white/95 dark:bg-slate-800/95 text-slate-900 dark:text-slate-100 text-xs font-semibold pl-3 pr-8 py-2 shadow-sm border border-white/30 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
+          ></select>
+          <svg class="w-4 h-4 text-slate-600 dark:text-slate-300 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+        <button
+          id="btnFilterCurrentProvince"
+          type="button"
+          class="px-2.5 py-2 rounded-xl text-[11px] font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 active:scale-95 transition shrink-0 shadow-sm"
+          title="Chuyển đổi chế độ lọc theo tỉnh đang chọn hoặc toàn quốc"
+        >
+          <span id="provinceFilterModeLabel">Theo tỉnh</span>
+        </button>
+      </div>
+
+      <!-- Quick Region / Popular Province Chips -->
+      <div id="quickProvinceChips" class="mt-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+    </header>
+
+    <!-- Main Scrollable Content Area -->
+    <main id="mainContent" class="flex-1 overflow-y-auto thin-scrollbar px-3.5 py-3 space-y-3">
+
+      <!-- TAB 1: ROUTES (Tuyến buýt) -->
+      <section id="tab-routes" class="space-y-3 animate-fade-up">
+        <!-- Search & Add Action -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                id="routeSearchInput"
+                type="text"
+                placeholder="Tìm mã tuyến, tên tuyến, điểm dừng, tỉnh..."
+                class="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                id="btnClearRouteSearch"
+                type="button"
+                class="hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 absolute right-2.5 top-1/2 -translate-y-1/2"
+                title="Xóa từ khóa"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            <button
+              id="btnOpenAddRoute"
+              type="button"
+              class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1 shadow-sm shrink-0 transition"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14" /><path d="M5 12h14" />
+              </svg>
+              <span>Thêm</span>
+            </button>
+          </div>
+
+          <!-- Filter Chips -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <button type="button" data-route-chip="all" class="route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-600 text-white shrink-0 transition">Tất cả</button>
+            <button type="button" data-route-chip="fav" class="route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">★ Yêu thích</button>
+            <button type="button" data-route-chip="ev" class="route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">⚡ Buýt điện / Xanh</button>
+            <button type="button" data-route-chip="airport" class="route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">✈ Sân bay / Ga</button>
+            <button type="button" data-route-chip="custom" class="route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">✎ Tự thêm</button>
+          </div>
+
+          <!-- Stats Bar -->
+          <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5 border-t border-slate-100 dark:border-slate-800">
+            <span id="routeCountLabel">Hiển thị 0 tuyến</span>
+            <span id="routeScopeLabel" class="font-medium text-blue-600 dark:text-blue-400">Khu vực: Hà Nội</span>
+          </div>
+        </div>
+
+        <!-- Routes List -->
+        <div id="routesList" class="space-y-2.5"></div>
+      </section>
+
+      <!-- TAB 2: STATIONS (Bến xe) -->
+      <section id="tab-stations" class="hidden space-y-3 animate-fade-up">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              id="stationSearchInput"
+              type="text"
+              placeholder="Tìm bến xe liên tỉnh, bến nội đô, địa chỉ, tỉnh..."
+              class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <button type="button" data-station-type="all" class="station-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-600 text-white shrink-0 transition">Tất cả bến</button>
+            <button type="button" data-station-type="intercity" class="station-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">Bến liên tỉnh</button>
+            <button type="button" data-station-type="city" class="station-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition">Bến nội đô / Đầu mối</button>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5 border-t border-slate-100 dark:border-slate-800">
+            <span id="stationCountLabel">0 bến xe</span>
+            <span id="stationScopeLabel" class="font-medium text-blue-600 dark:text-blue-400">Khu vực: Hà Nội</span>
+          </div>
+        </div>
+
+        <div id="stationsList" class="space-y-2.5"></div>
+      </section>
+
+      <!-- TAB 3: COACHES (Nhà xe liên tỉnh) -->
+      <section id="tab-coaches" class="hidden space-y-3 animate-fade-up">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              id="coachSearchInput"
+              type="text"
+              placeholder="Tìm nhà xe, tuyến liên tỉnh (ví dụ: Hà Nội - Đà Nẵng, Limousine)..."
+              class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5 border-t border-slate-100 dark:border-slate-800">
+            <span id="coachCountLabel">0 nhà xe liên tỉnh</span>
+            <span id="coachScopeLabel" class="font-medium text-blue-600 dark:text-blue-400">34 Tỉnh/TP</span>
+          </div>
+        </div>
+
+        <div id="coachesList" class="space-y-2.5"></div>
+      </section>
+
+      <!-- TAB 4: SETTINGS (Cài đặt gọn gàng kiểu Accordion - chọn vào mới hiển thị) -->
+      <section id="tab-settings" class="hidden space-y-2.5 animate-fade-up pb-2">
+        <!-- Top Summary Card -->
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-slate-900 dark:to-blue-950 text-white rounded-2xl p-3.5 shadow-sm border border-blue-500/30 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-blue-100 dark:text-slate-300 font-semibold">Trung tâm cấu hình &amp; Dữ liệu</p>
+              <h2 class="text-base font-extrabold mt-0.5">Cài đặt hệ thống</h2>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-white/15 text-[11px] font-bold">34 Tỉnh/TP</span>
+          </div>
+          <div id="settingsSummaryMetrics" class="grid grid-cols-3 gap-2 mt-3 text-center">
+            <div class="rounded-xl bg-white/10 px-2 py-1.5">
+              <div id="metricRoutes" class="text-sm font-extrabold">0</div>
+              <div class="text-[10px] text-blue-100">Tuyến buýt</div>
+            </div>
+            <div class="rounded-xl bg-white/10 px-2 py-1.5">
+              <div id="metricStations" class="text-sm font-extrabold">0</div>
+              <div class="text-[10px] text-blue-100">Bến xe</div>
+            </div>
+            <div class="rounded-xl bg-white/10 px-2 py-1.5">
+              <div id="metricCoaches" class="text-sm font-extrabold">0</div>
+              <div class="text-[10px] text-blue-100">Nhà xe</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Item 1: Bản đồ & Điều hướng -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            data-accordion-target="acc-map"
+            aria-expanded="false"
+            class="accordion-trigger w-full px-3.5 py-3 flex items-center justify-between gap-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" /><line x1="9" x2="9" y1="3" y2="18" /><line x1="15" x2="15" y1="6" y2="21" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold">Bản đồ &amp; Điều hướng</div>
+                <div id="accMapSummary" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Google Maps</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300">GPS</span>
+              <svg class="accordion-chevron w-4 h-4 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </button>
+          <div id="acc-map" class="hidden px-3.5 pb-3.5 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300">Ứng dụng mở tọa độ / chỉ đường mặc định</label>
+            <select id="mapProviderSelect" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-medium">
+              <option value="google">Google Maps</option>
+              <option value="apple">Apple Maps</option>
+              <option value="waze">Waze</option>
+              <option value="geo">Geo Intent (Thiết bị)</option>
+              <option value="ask">Luôn hỏi chọn ứng dụng mỗi lần mở</option>
+            </select>
+            <button id="btnSaveMapProvider" type="button" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">Lưu cấu hình bản đồ</button>
+          </div>
+        </div>
+
+        <!-- Accordion Item 2: Đồng bộ Gemini AI -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            data-accordion-target="acc-gemini"
+            aria-expanded="false"
+            class="accordion-trigger w-full px-3.5 py-3 flex items-center justify-between gap-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v3m0 12v3M3 12h3m12 0h3m-2.6-6.4-2.1 2.1M8.7 15.3l-2.1 2.1m0-12.8 2.1 2.1m6.6 6.6 2.1 2.1" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold">Đồng bộ Gemini AI</div>
+                <div id="accGeminiSummary" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">gemini-3-flash-preview • Google Search</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span id="geminiKeyBadge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300">Sẵn sàng</span>
+              <svg class="accordion-chevron w-4 h-4 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </button>
+          <div id="acc-gemini" class="hidden px-3.5 pb-3.5 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Gemini API Key (Tùy chọn nếu môi trường đã cấp key)</label>
+              <input id="geminiApiKeyInput" type="password" placeholder="AIza..." class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs" />
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="geminiScopeSelect" class="flex-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-2 text-xs font-medium">
+                <option value="current">Đồng bộ tỉnh/TP đang chọn</option>
+                <option value="top_regions">Đồng bộ 6 vùng trọng điểm (34 tỉnh/TP)</option>
+              </select>
+              <button id="btnRunGeminiSync" type="button" class="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shrink-0 transition">Đồng bộ ngay</button>
+            </div>
+            <button id="btnSaveGeminiKey" type="button" class="w-full py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition">Lưu API Key</button>
+
+            <!-- Progress & Log -->
+            <div id="geminiSyncBox" class="hidden space-y-2 pt-1">
+              <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div id="geminiProgressBar" class="h-full w-0 bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-300"></div>
+              </div>
+              <div id="geminiSyncLog" class="max-h-28 overflow-y-auto thin-scrollbar rounded-xl bg-slate-950 text-emerald-300 p-2.5 text-[11px] font-mono space-y-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Item 3: Sao lưu, Phục hồi & Nhập TXT/JSON -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            data-accordion-target="acc-backup"
+            aria-expanded="false"
+            class="accordion-trigger w-full px-3.5 py-3 flex items-center justify-between gap-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold">Sao lưu &amp; Phục hồi dữ liệu</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">JSON • TXT • Gộp • Dán văn bản</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300">Offline</span>
+              <svg class="accordion-chevron w-4 h-4 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </button>
+          <div id="acc-backup" class="hidden px-3.5 pb-3.5 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btnExportJson" type="button" class="py-2 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">Xuất .JSON</button>
+              <button id="btnExportTxt" type="button" class="py-2 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition">Xuất .TXT</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-center cursor-pointer transition">
+                <span>Phục hồi / Gộp file</span>
+                <input id="importFileInput" type="file" accept=".json,.txt" class="hidden" />
+              </label>
+              <button id="btnDownloadSampleTxt" type="button" class="py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition">Tải TXT mẫu</button>
+            </div>
+            <div class="flex items-center justify-between text-[11px] px-1">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Chế độ nhập file:</span>
+              <select id="importModeSelect" class="rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 text-[11px] font-semibold">
+                <option value="merge">Gộp thông minh (Merge)</option>
+                <option value="replace">Ghi đè toàn bộ (Replace)</option>
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300">Dán nội dung TXT / JSON nhanh</label>
+              <textarea id="pasteDataTextarea" rows="3" placeholder="Dán cấu trúc tuyến TXT hoặc JSON vào đây..." class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs"></textarea>
+              <div class="flex items-center gap-2">
+                <button id="btnImportPastedData" type="button" class="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">Nạp dữ liệu dán</button>
+                <button id="btnResetDefaultData" type="button" class="py-2 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 hover:bg-rose-100 text-xs font-bold transition">Khôi phục gốc</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Item 4: Mạng, IP ngoài, Quyền & DNS -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            data-accordion-target="acc-network"
+            aria-expanded="false"
+            class="accordion-trigger w-full px-3.5 py-3 flex items-center justify-between gap-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12.55a11 11 0 0 1 14.08 0" /><path d="M1.42 9a16 16 0 0 1 21.16 0" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" /><line x1="12" x2="12.01" y1="20" y2="20" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold">Mạng, IP ngoài, Quyền &amp; DNS</div>
+                <div id="accNetworkSummary" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">DNS: Mặc định • Đang kiểm tra</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span id="networkStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300">Live</span>
+              <svg class="accordion-chevron w-4 h-4 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </button>
+          <div id="acc-network" class="hidden px-3.5 pb-3.5 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+            <div class="rounded-xl bg-slate-100 dark:bg-slate-800 p-2.5 text-xs space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Trạng thái kết nối:</span>
+                <span id="liveConnectionState" class="font-bold text-emerald-600 dark:text-emerald-400">Đang kiểm tra...</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Địa chỉ IP ngoài:</span>
+                <span id="liveExternalIp" class="font-mono font-bold">Chưa kiểm tra</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Quyền vị trí (Geolocation):</span>
+                <span id="liveGeoPermission" class="font-semibold">Đang kiểm tra...</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btnCheckIp" type="button" class="py-2 px-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition">Kiểm tra IP ngoài</button>
+              <button id="btnRequestGeo" type="button" class="py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition">Kiểm tra quyền GPS</button>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Chế độ DNS / Chặn quảng cáo</label>
+              <select id="dnsModeSelect" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-medium">
+                <option value="default">DNS Mặc định hệ thống</option>
+                <option value="adguard">AdGuard DNS (Chặn quảng cáo &amp; theo dõi)</option>
+                <option value="cloudflare_family">Cloudflare 1.1.1.3 (Lọc an toàn)</option>
+                <option value="quad9">Quad9 9.9.9.9 (Bảo mật DNS)</option>
+              </select>
+            </div>
+            <button id="btnSaveNetworkSettings" type="button" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">Lưu cấu hình Mạng &amp; DNS</button>
+          </div>
+        </div>
+
+        <!-- Accordion Item 5: Thông tin ứng dụng -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <button
+            type="button"
+            data-accordion-target="acc-about"
+            aria-expanded="false"
+            class="accordion-trigger w-full px-3.5 py-3 flex items-center justify-between gap-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold">Thông tin ứng dụng</div>
+                <div id="liveClockSummary" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">V1.4 • Open Source • VMN Studios 95</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300">V1.4</span>
+              <svg class="accordion-chevron w-4 h-4 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </button>
+          <div id="acc-about" class="hidden px-3.5 pb-3.5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Phiên bản:</span>
+              <span class="font-bold">V1.4</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Giấy phép:</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">Open Source</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Studio:</span>
+              <span class="font-bold">VMN Studios 95</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Tác giả:</span>
+              <span class="font-bold">Vũ Minh Ngọc</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400">Thời gian thực:</span>
+              <span id="liveClockDetail" class="font-mono font-bold text-blue-600 dark:text-blue-400">--:--:--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 grid grid-cols-4 gap-1 shrink-0 z-20">
+      <button type="button" data-tab="routes" class="nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/50 transition">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 6v6" /><path d="M16 6v6" /><path d="M2 12h20" /><rect width="16" height="16" x="4" y="3" rx="2" />
+        </svg>
+        <span class="text-[10px] font-bold">Tuyến buýt</span>
+      </button>
+
+      <button type="button" data-tab="stations" class="nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+        </svg>
+        <span class="text-[10px] font-semibold">Bến xe</span>
+      </button>
+
+      <button type="button" data-tab="coaches" class="nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+          <circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" />
+        </svg>
+        <span class="text-[10px] font-semibold">Nhà xe</span>
+      </button>
+
+      <button type="button" data-tab="settings" class="nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <span class="text-[10px] font-semibold">Cài đặt</span>
+      </button>
+    </nav>
+
+    <!-- Toast Notification Banner -->
+    <div id="toastBanner" class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 max-w-[380px] w-[90%] px-3.5 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold shadow-xl z-50 flex items-center justify-between gap-2">
+      <span id="toastMessage">Thông báo</span>
+      <button id="btnCloseToast" type="button" class="text-xs opacity-75 hover:opacity-100">✕</button>
+    </div>
+
+    <!-- MODAL 1: Route Detail Modal (Lộ trình đi / về) -->
+    <div id="routeDetailModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-[430px] max-h-[88vh] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-fade-up">
+        <div class="px-4 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-start justify-between gap-2 shrink-0">
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span id="detailRouteCode" class="px-2 py-0.5 rounded-lg bg-white/20 text-xs font-extrabold">Tuyến --</span>
+              <span id="detailRouteProvince" class="px-2 py-0.5 rounded-lg bg-amber-400 text-slate-950 text-[11px] font-bold">Hà Nội</span>
+              <span id="detailRouteFare" class="text-xs font-semibold text-blue-100"></span>
+            </div>
+            <h3 id="detailRouteName" class="text-sm font-extrabold mt-1 truncate">Tên tuyến</h3>
+            <p id="detailRouteHours" class="text-[11px] text-blue-100 mt-0.5"></p>
+          </div>
+          <button id="btnCloseDetailModal" type="button" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Direction Switch & Actions -->
+        <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0">
+          <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-700 p-0.5 text-xs font-bold">
+            <button id="btnDirForward" type="button" class="px-3 py-1 rounded-lg bg-blue-600 text-white transition">Chiều đi</button>
+            <button id="btnDirReturn" type="button" class="px-3 py-1 rounded-lg text-slate-700 dark:text-slate-200 transition">Chiều về</button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="btnDetailFav" type="button" class="px-2.5 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-xs font-bold">★ Lưu</button>
+            <button id="btnDetailEdit" type="button" class="px-2.5 py-1.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold">Sửa</button>
+            <button id="btnDetailDelete" type="button" class="px-2.5 py-1.5 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 text-xs font-bold">Xóa</button>
+          </div>
+        </div>
+
+        <!-- Stops Timeline -->
+        <div id="detailStopsContainer" class="flex-1 overflow-y-auto thin-scrollbar p-4 space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Add / Edit Route CRUD Modal -->
+    <div id="routeFormModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-[430px] max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-fade-up">
+        <div class="px-4 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+          <h3 id="routeFormTitle" class="text-sm font-extrabold">Thêm tuyến buýt mới</h3>
+          <button id="btnCloseRouteFormModal" type="button" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form id="routeCrudForm" class="flex-1 overflow-y-auto thin-scrollbar p-4 space-y-3 text-xs">
+          <input type="hidden" id="formRouteId" />
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-semibold mb-1">Mã tuyến *</label>
+              <input id="formRouteCode" type="text" required placeholder="VD: 01, E08..." class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Tỉnh / Thành phố *</label>
+              <select id="formRouteProvince" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-2"></select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Tên tuyến *</label>
+            <input id="formRouteName" type="text" required placeholder="VD: Bến xe Giáp Bát - Gia Lâm" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-semibold mb-1">Giá vé</label>
+              <input id="formRouteFare" type="text" placeholder="VD: 7.000đ" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Giờ hoạt động &amp; Tần suất</label>
+              <input id="formRouteHours" type="text" placeholder="VD: 05:00 - 21:00 • 15p/chuyến" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2" />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 py-1">
+            <label class="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+              <input id="formRouteEv" type="checkbox" class="rounded text-blue-600" />
+              <span>Buýt điện / Xanh</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+              <input id="formRouteAirport" type="checkbox" class="rounded text-blue-600" />
+              <span>Sân bay / Ga</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Điểm dừng chiều đi (mỗi dòng 1 điểm, có thể thêm " - Địa chỉ")</label>
+            <textarea id="formStopsForward" rows="3" placeholder="Bến xe Giáp Bát - Giải Phóng, Hoàng Mai&#10;Ngã Tư Vọng - Trường Chinh&#10;Bến xe Gia Lâm - Ngô Gia Tự, Long Biên" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5"></textarea>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Điểm dừng chiều về (mỗi dòng 1 điểm, để trống sẽ tự đảo chiều đi)</label>
+            <textarea id="formStopsReturn" rows="3" placeholder="Bến xe Gia Lâm - Ngô Gia Tự, Long Biên&#10;Ngã Tư Vọng - Trường Chinh&#10;Bến xe Giáp Bát - Giải Phóng, Hoàng Mai" class="w-full rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition">Lưu tuyến buýt</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 3: Map App Picker Modal (when mapProvider === 'ask' or fallback) -->
+    <div id="mapPickerModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-[360px] rounded-3xl p-4 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-3 animate-fade-up">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-extrabold">Mở bản đồ &amp; Chỉ đường</h3>
+          <button id="btnCloseMapPicker" type="button" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold">✕</button>
+        </div>
+        <p id="mapPickerDestination" class="text-xs text-slate-500 dark:text-slate-400 truncate"></p>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <button type="button" data-map-choice="google" class="map-choice-btn py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition">Google Maps</button>
+          <button type="button" data-map-choice="apple" class="map-choice-btn py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white transition">Apple Maps</button>
+          <button type="button" data-map-choice="waze" class="map-choice-btn py-2.5 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white transition">Waze</button>
+          <button type="button" data-map-choice="geo" class="map-choice-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition">Geo Intent</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: Confirm Dialog Modal (No native confirm/alert) -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-[360px] rounded-3xl p-4 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-3 animate-fade-up">
+        <h3 id="confirmTitle" class="text-sm font-extrabold text-rose-600 dark:text-rose-400">Xác nhận thao tác</h3>
+        <p id="confirmMessage" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button id="btnConfirmCancel" type="button" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Hủy</button>
+          <button id="btnConfirmOk" type="button" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold">Đồng ý</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Buýt & Bến xe Việt Nam - 34 Tỉnh/Thành phố Offline App
+     * Single-file application with complete dataset, CRUD, search/filtering,
+     * Gemini batch sync with Google Search, map navigation, backup/restore,
+     * network/IP/DNS settings, and compact accordion Settings UI.
+     */
+    (function () {
+      'use strict';
+
+      // 1. Complete 34 Provinces & Centrally Governed Cities of Vietnam
+      const PROVINCES_34 = [
+        { id: 'ha-noi', name: 'Hà Nội', short: 'Hà Nội', region: 'Bắc', type: 'TP trực thuộc TW' },
+        { id: 'hai-phong', name: 'Hải Phòng', short: 'Hải Phòng', region: 'Bắc', type: 'TP trực thuộc TW' },
+        { id: 'hue', name: 'Huế', short: 'Huế', region: 'Trung', type: 'TP trực thuộc TW' },
+        { id: 'da-nang', name: 'Đà Nẵng', short: 'Đà Nẵng', region: 'Trung', type: 'TP trực thuộc TW' },
+        { id: 'ho-chi-minh', name: 'TP. Hồ Chí Minh', short: 'TP.HCM', region: 'Nam', type: 'TP trực thuộc TW' },
+        { id: 'can-tho', name: 'Cần Thơ', short: 'Cần Thơ', region: 'Nam', type: 'TP trực thuộc TW' },
+        { id: 'cao-bang', name: 'Cao Bằng', short: 'Cao Bằng', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'tuyen-quang', name: 'Tuyên Quang', short: 'Tuyên Quang', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'lao-cai', name: 'Lào Cai', short: 'Lào Cai', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'dien-bien', name: 'Điện Biên', short: 'Điện Biên', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'lai-chau', name: 'Lai Châu', short: 'Lai Châu', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'son-la', name: 'Sơn La', short: 'Sơn La', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'thai-nguyen', name: 'Thái Nguyên', short: 'Thái Nguyên', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'lang-son', name: 'Lạng Sơn', short: 'Lạng Sơn', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'quang-ninh', name: 'Quảng Ninh', short: 'Quảng Ninh', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'bac-ninh', name: 'Bắc Ninh', short: 'Bắc Ninh', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'phu-tho', name: 'Phú Thọ', short: 'Phú Thọ', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'hung-yen', name: 'Hưng Yên', short: 'Hưng Yên', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'ninh-binh', name: 'Ninh Bình', short: 'Ninh Bình', region: 'Bắc', type: 'Tỉnh' },
+        { id: 'thanh-hoa', name: 'Thanh Hóa', short: 'Thanh Hóa', region: 'Trung', type: 'Tỉnh' },
+        { id: 'nghe-an', name: 'Nghệ An', short: 'Nghệ An', region: 'Trung', type: 'Tỉnh' },
+        { id: 'ha-tinh', name: 'Hà Tĩnh', short: 'Hà Tĩnh', region: 'Trung', type: 'Tỉnh' },
+        { id: 'quang-tri', name: 'Quảng Trị', short: 'Quảng Trị', region: 'Trung', type: 'Tỉnh' },
+        { id: 'quang-ngai', name: 'Quảng Ngãi', short: 'Quảng Ngãi', region: 'Trung', type: 'Tỉnh' },
+        { id: 'gia-lai', name: 'Gia Lai', short: 'Gia Lai', region: 'Trung', type: 'Tỉnh' },
+        { id: 'dak-lak', name: 'Đắk Lắk', short: 'Đắk Lắk', region: 'Trung', type: 'Tỉnh' },
+        { id: 'khanh-hoa', name: 'Khánh Hòa', short: 'Khánh Hòa', region: 'Trung', type: 'Tỉnh' },
+        { id: 'lam-dong', name: 'Lâm Đồng', short: 'Lâm Đồng', region: 'Trung', type: 'Tỉnh' },
+        { id: 'dong-nai', name: 'Đồng Nai', short: 'Đồng Nai', region: 'Nam', type: 'Tỉnh' },
+        { id: 'tay-ninh', name: 'Tây Ninh', short: 'Tây Ninh', region: 'Nam', type: 'Tỉnh' },
+        { id: 'dong-thap', name: 'Đồng Tháp', short: 'Đồng Tháp', region: 'Nam', type: 'Tỉnh' },
+        { id: 'vinh-long', name: 'Vĩnh Long', short: 'Vĩnh Long', region: 'Nam', type: 'Tỉnh' },
+        { id: 'an-giang', name: 'An Giang', short: 'An Giang', region: 'Nam', type: 'Tỉnh' },
+        { id: 'ca-mau', name: 'Cà Mau', short: 'Cà Mau', region: 'Nam', type: 'Tỉnh' }
+      ];
+
+      const QUICK_PROVINCES = ['ha-noi', 'ho-chi-minh', 'da-nang', 'hai-phong', 'hue', 'can-tho', 'quang-ninh', 'khanh-hoa', 'lam-dong', 'an-giang'];
+
+      // Rich offline seed data across all 34 provinces/cities
+      const SEED_DATA = {
+        routes: [
+          {
+            id: 'r-hn-01',
+            code: '01',
+            provinceId: 'ha-noi',
+            name: 'Bến xe Giáp Bát - Bến xe Gia Lâm',
+            fare: '7.000đ',
+            hours: '05:00 - 21:05 • 10-15p/chuyến',
+            ev: false,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Giáp Bát', address: 'Giải Phóng, Hoàng Mai, Hà Nội' },
+              { name: 'Ngã Tư Vọng', address: 'Trường Chinh / Giải Phóng, Hà Nội' },
+              { name: 'Bệnh viện Bạch Mai', address: '78 Giải Phóng, Đống Đa, Hà Nội' },
+              { name: 'Ga Hà Nội', address: '120 Lê Duẩn, Hoàn Kiếm, Hà Nội' },
+              { name: 'Cầu Chương Dương', address: 'Hoàn Kiếm / Long Biên, Hà Nội' },
+              { name: 'Bến xe Gia Lâm', address: 'Ngô Gia Tự, Long Biên, Hà Nội' }
+            ],
+            stopsReturn: [
+              { name: 'Bến xe Gia Lâm', address: 'Ngô Gia Tự, Long Biên, Hà Nội' },
+              { name: 'Cầu Chương Dương', address: 'Long Biên / Hoàn Kiếm, Hà Nội' },
+              { name: 'Ga Hà Nội', address: '120 Lê Duẩn, Hoàn Kiếm, Hà Nội' },
+              { name: 'Bệnh viện Bạch Mai', address: '78 Giải Phóng, Đống Đa, Hà Nội' },
+              { name: 'Ngã Tư Vọng', address: 'Giải Phóng, Hà Nội' },
+              { name: 'Bến xe Giáp Bát', address: 'Giải Phóng, Hoàng Mai, Hà Nội' }
+            ]
+          },
+          {
+            id: 'r-hn-e08',
+            code: 'E08',
+            provinceId: 'ha-noi',
+            name: 'KĐT Smart City - Khu liên cơ Võ Chí Công - Sân bay Nội Bài',
+            fare: '9.000đ',
+            hours: '05:00 - 21:30 • 20p/chuyến',
+            ev: true,
+            airport: true,
+            custom: false,
+            stopsForward: [
+              { name: 'Vinhomes Smart City', address: 'Tây Mỗ, Nam Từ Liêm, Hà Nội' },
+              { name: 'Khu liên cơ Võ Chí Công', address: 'Võ Chí Công, Tây Hồ, Hà Nội' },
+              { name: 'Cầu Nhật Tân', address: 'Võ Chí Công / Đông Anh, Hà Nội' },
+              { name: 'Nhà ga T1 - Nội Bài', address: 'Sân bay quốc tế Nội Bài, Hà Nội' },
+              { name: 'Nhà ga T2 - Nội Bài', address: 'Sân bay quốc tế Nội Bài, Hà Nội' }
+            ],
+            stopsReturn: [
+              { name: 'Nhà ga T2 - Nội Bài', address: 'Sân bay quốc tế Nội Bài, Hà Nội' },
+              { name: 'Nhà ga T1 - Nội Bài', address: 'Sân bay quốc tế Nội Bài, Hà Nội' },
+              { name: 'Cầu Nhật Tân', address: 'Đông Anh / Tây Hồ, Hà Nội' },
+              { name: 'Khu liên cơ Võ Chí Công', address: 'Võ Chí Công, Tây Hồ, Hà Nội' },
+              { name: 'Vinhomes Smart City', address: 'Tây Mỗ, Nam Từ Liêm, Hà Nội' }
+            ]
+          },
+          {
+            id: 'r-hcm-01',
+            code: '01',
+            provinceId: 'ho-chi-minh',
+            name: 'Bến xe Buýt Sài Gòn - Bến xe Miền Tây',
+            fare: '7.000đ',
+            hours: '04:45 - 20:30 • 12p/chuyến',
+            ev: false,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Buýt Sài Gòn', address: 'Công trường Quách Thị Trang, Quận 1, TP.HCM' },
+              { name: 'Chợ Bến Thành', address: 'Lê Lợi, Quận 1, TP.HCM' },
+              { name: 'Ngã Sáu Cộng Hòa', address: 'Phạm Ngũ Lão / Nguyễn Trãi, TP.HCM' },
+              { name: 'Vòng xoay Phú Lâm', address: 'Kinh Dương Vương, Bình Tân, TP.HCM' },
+              { name: 'Bến xe Miền Tây', address: '395 Kinh Dương Vương, Bình Tân, TP.HCM' }
+            ],
+            stopsReturn: []
+          },
+          {
+            id: 'r-hcm-109',
+            code: '109',
+            provinceId: 'ho-chi-minh',
+            name: 'Công viên 23/9 - Sân bay Tân Sơn Nhất',
+            fare: '15.000đ',
+            hours: '05:30 - 00:30 • 20p/chuyến',
+            ev: true,
+            airport: true,
+            custom: false,
+            stopsForward: [
+              { name: 'Công viên 23/9', address: 'Phạm Ngũ Lão, Quận 1, TP.HCM' },
+              { name: 'Nam Kỳ Khởi Nghĩa', address: 'Quận 3 / Phú Nhuận, TP.HCM' },
+              { name: 'Công viên Hoàng Văn Thụ', address: 'Hoàng Văn Thụ, Tân Bình, TP.HCM' },
+              { name: 'Ga Quốc nội T1 - TSN', address: 'Trường Sơn, Tân Bình, TP.HCM' },
+              { name: 'Ga Quốc tế T2 - TSN', address: 'Trường Sơn, Tân Bình, TP.HCM' }
+            ],
+            stopsReturn: []
+          },
+          {
+            id: 'r-dn-01',
+            code: '01',
+            provinceId: 'da-nang',
+            name: 'Bến xe Trung tâm Đà Nẵng - Hội An',
+            fare: '20.000đ',
+            hours: '05:30 - 18:30 • 25p/chuyến',
+            ev: false,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Trung tâm Đà Nẵng', address: 'Tôn Đức Thắng, Liên Chiểu, Đà Nẵng' },
+              { name: 'Cầu Rồng', address: 'Nguyễn Văn Linh, Hải Châu, Đà Nẵng' },
+              { name: 'Ngũ Hành Sơn', address: 'Lê Văn Hiến, Ngũ Hành Sơn, Đà Nẵng' },
+              { name: 'Bến xe Hội An', address: 'Trần Nhân Tông, Hội An, Đà Nẵng' }
+            ],
+            stopsReturn: []
+          },
+          {
+            id: 'r-hp-01',
+            code: '01',
+            provinceId: 'hai-phong',
+            name: 'Bến xe Cầu Rào - Bến xe Đồ Sơn',
+            fare: '15.000đ',
+            hours: '05:00 - 20:00 • 20p/chuyến',
+            ev: false,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Cầu Rào', address: 'Thiên Lôi, Lê Chân, Hải Phòng' },
+              { name: 'Cầu Rào 2', address: 'Phạm Văn Đồng, Dương Kinh, Hải Phòng' },
+              { name: 'Khu du lịch Đồ Sơn', address: 'Lý Thánh Tông, Đồ Sơn, Hải Phòng' }
+            ],
+            stopsReturn: []
+          },
+          {
+            id: 'r-hue-02',
+            code: '02',
+            provinceId: 'hue',
+            name: 'Bến xe Phía Bắc - Thuận An',
+            fare: '12.000đ',
+            hours: '05:30 - 19:00 • 20p/chuyến',
+            ev: false,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Phía Bắc Huế', address: 'Lý Thái Tổ, Thuận Hóa, Huế' },
+              { name: 'Cầu Trường Tiền', address: 'Lê Lợi, Thuận Hóa, Huế' },
+              { name: 'Biển Thuận An', address: 'Thuận An, Huế' }
+            ],
+            stopsReturn: []
+          },
+          {
+            id: 'r-ct-01',
+            code: '01',
+            provinceId: 'can-tho',
+            name: 'Bến xe Trung tâm Cần Thơ - Ô Môn',
+            fare: '10.000đ',
+            hours: '05:00 - 20:00 • 20p/chuyến',
+            ev: true,
+            airport: false,
+            custom: false,
+            stopsForward: [
+              { name: 'Bến xe Khách Trung tâm Cần Thơ', address: 'Quốc lộ 1A, Hưng Thạnh, Cái Răng, Cần Thơ' },
+              { name: 'Bến Ninh Kiều', address: 'Hai Bà Trưng, Ninh Kiều, Cần Thơ' },
+              { name: 'Trung tâm Ô Môn', address: 'Tôn Đức Thắng, Ô Môn, Cần Thơ' }
+            ],
+            stopsReturn: []
+          }
+        ],
+        stations: [
+          {
+            id: 'st-hn-giapbat',
+            name: 'Bến xe Giáp Bát',
+            provinceId: 'ha-noi',
+            type: 'intercity',
+            address: 'Km6 Giải Phóng, Hoàng Mai, Hà Nội',
+            routes: ['01', 'E08']
+          },
+          {
+            id: 'st-hn-mydinh',
+            name: 'Bến xe Mỹ Đình',
+            provinceId: 'ha-noi',
+            type: 'intercity',
+            address: '20 Phạm Hùng, Nam Từ Liêm, Hà Nội',
+            routes: ['E08']
+          },
+          {
+            id: 'st-hcm-mientay',
+            name: 'Bến xe Miền Tây',
+            provinceId: 'ho-chi-minh',
+            type: 'intercity',
+            address: '395 Kinh Dương Vương, Bình Tân, TP.HCM',
+            routes: ['01']
+          },
+          {
+            id: 'st-hcm-saigon',
+            name: 'Bến xe Buýt Sài Gòn',
+            provinceId: 'ho-chi-minh',
+            type: 'city',
+            address: 'Công trường Quách Thị Trang, Quận 1, TP.HCM',
+            routes: ['01', '109']
+          },
+          {
+            id: 'st-dn-trungtam',
+            name: 'Bến xe Trung tâm Đà Nẵng',
+            provinceId: 'da-nang',
+            type: 'intercity',
+            address: '185 Tôn Đức Thắng, Liên Chiểu, Đà Nẵng',
+            routes: ['01']
+          },
+          {
+            id: 'st-hp-caurao',
+            name: 'Bến xe Cầu Rào',
+            provinceId: 'hai-phong',
+            type: 'city',
+            address: 'Đường Thiên Lôi, Lê Chân, Hải Phòng',
+            routes: ['01']
+          },
+          {
+            id: 'st-hue-phiabac',
+            name: 'Bến xe Phía Bắc Huế',
+            provinceId: 'hue',
+            type: 'intercity',
+            address: 'Lý Thái Tổ, Thuận Hóa, Huế',
+            routes: ['02']
+          },
+          {
+            id: 'st-ct-trungtam',
+            name: 'Bến xe Khách Trung tâm Cần Thơ',
+            provinceId: 'can-tho',
+            type: 'intercity',
+            address: 'Quốc lộ 1A, Cái Răng, Cần Thơ',
+            routes: ['01']
+          }
+        ],
+        coaches: [
+          {
+            id: 'c-1',
+            name: 'Nhà xe Phương Trang (FUTA Bus Lines)',
+            routeText: 'TP. Hồ Chí Minh - Cần Thơ - An Giang - Cà Mau - Đà Nẵng - Huế',
+            provinces: ['ho-chi-minh', 'can-tho', 'an-giang', 'ca-mau', 'da-nang', 'hue', 'lam-dong', 'khanh-hoa'],
+            vehicleType: 'Giường nằm cao cấp & Limousine',
+            hotline: '1900 6067'
+          },
+          {
+            id: 'c-2',
+            name: 'Nhà xe Hoàng Long',
+            routeText: 'Hà Nội - Hải Phòng - Quảng Ninh - Ninh Bình - Huế - Đà Nẵng - TP.HCM',
+            provinces: ['ha-noi', 'hai-phong', 'quang-ninh', 'ninh-binh', 'hue', 'da-nang', 'ho-chi-minh'],
+            vehicleType: 'Giường nằm liên tỉnh Bắc - Nam',
+            hotline: '1900 1417'
+          },
+          {
+            id: 'c-3',
+            name: 'Nhà xe Sao Việt',
+            routeText: 'Hà Nội - Lào Cai (Sa Pa) - Phú Thọ - Tuyên Quang',
+            provinces: ['ha-noi', 'lao-cai', 'phu-tho', 'tuyen-quang'],
+            vehicleType: 'Cabin VIP & Giường nằm',
+            hotline: '1900 6746'
+          },
+          {
+            id: 'c-4',
+            name: 'Nhà xe Văn Minh',
+            routeText: 'Hà Nội - Thanh Hóa - Nghệ An - Hà Tĩnh - Quảng Trị',
+            provinces: ['ha-noi', 'thanh-hoa', 'nghe-an', 'ha-tinh', 'quang-tri'],
+            vehicleType: 'Limousine & Giường phòng',
+            hotline: '1900 6467'
+          },
+          {
+            id: 'c-5',
+            name: 'Nhà xe Kumho Samco',
+            routeText: 'TP. Hồ Chí Minh - Đồng Nai - Lâm Đồng - Khánh Hòa - Đắk Lắk',
+            provinces: ['ho-chi-minh', 'dong-nai', 'lam-dong', 'khanh-hoa', 'dak-lak'],
+            vehicleType: 'Ghế ngồi / Giường nằm chất lượng cao',
+            hotline: '1900 6070'
+          },
+          {
+            id: 'c-6',
+            name: 'Nhà xe Hải Âu',
+            routeText: 'Hà Nội - Hưng Yên - Ninh Bình - Hải Phòng',
+            provinces: ['ha-noi', 'hung-yen', 'ninh-binh', 'hai-phong'],
+            vehicleType: 'Xe khách liên tỉnh & Limousine',
+            hotline: '0225 3717 717'
+          }
+        ]
+      };
+
+      // Generate baseline offline bus routes & stations for all remaining provinces so every single one of the 34 provinces/cities has rich data immediately
+      function buildFull34Dataset() {
+        const cloned = JSON.parse(JSON.stringify(SEED_DATA));
+        const existingRouteProv = new Set(cloned.routes.map((r) => r.provinceId));
+        const existingStationProv = new Set(cloned.stations.map((s) => s.provinceId));
+
+        PROVINCES_34.forEach((prov, idx) => {
+          const numCode = String((idx + 1) * 10 + 1);
+          if (!existingStationProv.has(prov.id)) {
+            cloned.stations.push({
+              id: `st-${prov.id}-main`,
+              name: `Bến xe Khách Trung tâm ${prov.short}`,
+              provinceId: prov.id,
+              type: 'intercity',
+              address: `Trung tâm hành chính ${prov.name}`,
+              routes: [numCode]
+            });
+            cloned.stations.push({
+              id: `st-${prov.id}-city`,
+              name: `Điểm trung chuyển nội đô ${prov.short}`,
+              provinceId: prov.id,
+              type: 'city',
+              address: `Khu vực trung tâm ${prov.name}`,
+              routes: [numCode]
+            });
+          }
+
+          if (!existingRouteProv.has(prov.id)) {
+            cloned.routes.push({
+              id: `r-${prov.id}-${numCode}`,
+              code: numCode,
+              provinceId: prov.id,
+              name: `Bến xe Trung tâm ${prov.short} - Khu trung tâm ${prov.short}`,
+              fare: '10.000đ',
+              hours: '05:30 - 20:00 • 20p/chuyến',
+              ev: idx % 2 === 0,
+              airport: false,
+              custom: false,
+              stopsForward: [
+                { name: `Bến xe Khách Trung tâm ${prov.short}`, address: `Quốc lộ chính, ${prov.name}` },
+                { name: `Quảng trường / Trung tâm ${prov.short}`, address: `Đường trung tâm, ${prov.name}` },
+                { name: `Bệnh viện đa khoa ${prov.short}`, address: `Khu đô thị, ${prov.name}` },
+                { name: `Ga / Khu trung chuyển ${prov.short}`, address: `Nội đô ${prov.name}` }
+              ],
+              stopsReturn: []
+            });
+          }
+
+          // Ensure every province is linked in at least one coach route
+          const hasCoach = cloned.coaches.some((c) => Array.isArray(c.provinces) && c.provinces.includes(prov.id));
+          if (!hasCoach) {
+            const targetCoach = cloned.coaches[idx % cloned.coaches.length];
+            targetCoach.provinces.push(prov.id);
+            if (!targetCoach.routeText.includes(prov.short)) {
+              targetCoach.routeText += ` - ${prov.short}`;
+            }
+          }
+        });
+
+        return cloned;
+      }
+
+      // Storage keys
+      const STORAGE_KEYS = {
+        DATA: 'vmn_bus34_data_v1',
+        FAVS: 'vmn_bus34_favs_v1',
+        SETTINGS: 'vmn_bus34_settings_v1',
+        THEME: 'vmn_bus34_theme_v1'
+      };
+
+      const DEFAULT_SETTINGS = {
+        currentProvinceId: 'ha-noi',
+        filterByProvince: true,
+        mapProvider: 'google',
+        geminiApiKey: '',
+        dnsMode: 'default',
+        externalIp: 'Chưa kiểm tra',
+        importMode: 'merge'
+      };
+
+      // Application State
+      let state = {
+        activeTab: 'routes',
+        routeChip: 'all',
+        stationType: 'all',
+        routeSearch: '',
+        stationSearch: '',
+        coachSearch: '',
+        data: buildFull34Dataset(),
+        favorites: [],
+        settings: { ...DEFAULT_SETTINGS },
+        activeDetailRouteId: null,
+        activeDetailDirection: 'forward',
+        pendingMapDestination: null,
+        pendingConfirmCallback: null
+      };
+
+      // Load persisted state safely
+      function loadPersistedState() {
+        try {
+          const rawTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+          if (rawTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else if (rawTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (_) {}
+
+        try {
+          const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+          if (rawSettings) {
+            state.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(rawSettings) };
+          }
+          if (!PROVINCES_34.some((p) => p.id === state.settings.currentProvinceId)) {
+            state.settings.currentProvinceId = 'ha-noi';
+          }
+        } catch (_) {}
+
+        try {
+          const rawFavs = localStorage.getItem(STORAGE_KEYS.FAVS);
+          if (rawFavs) {
+            const parsedFavs = JSON.parse(rawFavs);
+            if (Array.isArray(parsedFavs)) state.favorites = parsedFavs;
+          }
+        } catch (_) {}
+
+        try {
+          const rawData = localStorage.getItem(STORAGE_KEYS.DATA);
+          if (rawData) {
+            const parsed = JSON.parse(rawData);
+            if (parsed && Array.isArray(parsed.routes) && parsed.routes.length > 0) {
+              state.data = {
+                routes: parsed.routes,
+                stations: Array.isArray(parsed.stations) ? parsed.stations : state.data.stations,
+                coaches: Array.isArray(parsed.coaches) ? parsed.coaches : state.data.coaches
+              };
+            }
+          }
+        } catch (_) {}
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify(state.data));
+        } catch (err) {
+          showToast('Không thể lưu bộ nhớ trình duyệt: ' + err.message);
+        }
+      }
+
+      function saveFavorites() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.FAVS, JSON.stringify(state.favorites));
+        } catch (_) {}
+      }
+
+      function saveSettings() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(state.settings));
+        } catch (_) {}
+      }
+
+      // Helpers
+      function getProvinceById(id) {
+        return PROVINCES_34.find((p) => p.id === id) || PROVINCES_34[0];
+      }
+
+      function normalizeText(str) {
+        return String(str || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .trim();
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = String(text ?? '');
+        return div.innerHTML;
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const banner = document.getElementById('toastBanner');
+        const msgEl = document.getElementById('toastMessage');
+        if (!banner || !msgEl) return;
+        msgEl.textContent = msg;
+        banner.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 3200);
+      }
+
+      function openConfirm(title, message, onOk) {
+        state.pendingConfirmCallback = onOk;
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmModal').classList.remove('hidden');
+      }
+
+      function closeConfirm() {
+        state.pendingConfirmCallback = null;
+        document.getElementById('confirmModal').classList.add('hidden');
+      }
+
+      function copyToClipboard(text) {
+        const value = String(text || '');
+        if (!value) return;
+        try {
+          const tempInput = document.createElement('textarea');
+          tempInput.value = value;
+          tempInput.style.position = 'fixed';
+          tempInput.style.left = '-9999px';
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInput);
+          showToast('Đã sao chép: ' + value);
+        } catch (_) {
+          showToast('Không thể sao chép tự động');
+        }
+      }
+
+      // Map Navigation Helper
+      function launchMapWithProvider(queryText, provider) {
+        const cleanQuery = encodeURIComponent(String(queryText || '').trim());
+        if (!cleanQuery) {
+          showToast('Thiếu thông tin địa chỉ bản đồ');
+          return;
+        }
+        let url = '';
+        switch (provider) {
+          case 'apple':
+            url = `https://maps.apple.com/?q=${cleanQuery}`;
+            break;
+          case 'waze':
+            url = `https://waze.com/ul?q=${cleanQuery}&navigate=yes`;
+            break;
+          case 'geo':
+            url = `geo:0,0?q=${cleanQuery}`;
+            break;
+          case 'google':
+          default:
+            url = `https://www.google.com/maps/search/?api=1&query=${cleanQuery}`;
+            break;
+        }
+
+        try {
+          const win = window.open(url, '_blank', 'noopener,noreferrer');
+          if (!win && provider === 'geo') {
+            window.location.href = url;
+          }
+        } catch (_) {
+          window.location.href = `https://www.google.com/maps/search/?api=1&query=${cleanQuery}`;
+        }
+      }
+
+      function openMapNavigation(queryText) {
+        const provider = state.settings.mapProvider || 'google';
+        if (provider === 'ask') {
+          state.pendingMapDestination = queryText;
+          document.getElementById('mapPickerDestination').textContent = queryText;
+          document.getElementById('mapPickerModal').classList.remove('hidden');
+          return;
+        }
+        launchMapWithProvider(queryText, provider);
+      }
+
+      // Render Province Select & Quick Chips
+      function renderProvinceControls() {
+        const selectEl = document.getElementById('provinceSelect');
+        const formProvEl = document.getElementById('formRouteProvince');
+        const currentProv = getProvinceById(state.settings.currentProvinceId);
+
+        document.getElementById('headerProvinceBadge').textContent = currentProv.short;
+        document.getElementById('provinceFilterModeLabel').textContent = state.settings.filterByProvince ? 'Theo tỉnh' : 'Toàn quốc';
+
+        if (selectEl) {
+          selectEl.innerHTML = PROVINCES_34.map(
+            (p) => `<option value="${escapeHtml(p.id)}" ${p.id === currentProv.id ? 'selected' : ''}>${escapeHtml(p.name)} (${escapeHtml(p.region)})</option>`
+          ).join('');
+        }
+
+        if (formProvEl) {
+          formProvEl.innerHTML = PROVINCES_34.map(
+            (p) => `<option value="${escapeHtml(p.id)}" ${p.id === currentProv.id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`
+          ).join('');
+        }
+
+        const chipsContainer = document.getElementById('quickProvinceChips');
+        if (chipsContainer) {
+          chipsContainer.innerHTML = QUICK_PROVINCES.map((pid) => {
+            const p = getProvinceById(pid);
+            const active = p.id === currentProv.id;
+            return `<button type="button" data-quick-prov="${escapeHtml(p.id)}" class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 transition ${
+              active
+                ? 'bg-white text-blue-700 shadow-xs'
+                : 'bg-white/15 text-blue-50 hover:bg-white/25'
+            }">${escapeHtml(p.short)}</button>`;
+          }).join('');
+        }
+      }
+
+      // Render Tab 1: Routes
+      function renderRoutes() {
+        const listEl = document.getElementById('routesList');
+        const currentProv = getProvinceById(state.settings.currentProvinceId);
+        const q = normalizeText(state.routeSearch);
+
+        document.getElementById('routeScopeLabel').textContent = state.settings.filterByProvince
+          ? `Khu vực: ${currentProv.name}`
+          : 'Phạm vi: Toàn quốc (34 tỉnh/TP)';
+
+        const filtered = state.data.routes.filter((r) => {
+          if (state.settings.filterByProvince && !q && r.provinceId !== currentProv.id) {
+            return false;
+          }
+          if (state.settings.filterByProvince && q && r.provinceId !== currentProv.id) {
+            // Allow global match if user explicitly searches a province name, else keep current province filter when toggle is ON
+            const provName = normalizeText(getProvinceById(r.provinceId).name);
+            if (!provName.includes(q)) return false;
+          }
+
+          if (state.routeChip === 'fav' && !state.favorites.includes(r.id)) return false;
+          if (state.routeChip === 'ev' && !r.ev) return false;
+          if (state.routeChip === 'airport' && !r.airport) return false;
+          if (state.routeChip === 'custom' && !r.custom) return false;
+
+          if (q) {
+            const prov = getProvinceById(r.provinceId);
+            const stopsText = []
+              .concat(r.stopsForward || [], r.stopsReturn || [])
+              .map((s) => `${s.name} ${s.address || ''}`)
+              .join(' ');
+            const haystack = normalizeText(`${r.code} ${r.name} ${prov.name} ${prov.short} ${stopsText}`);
+            if (!haystack.includes(q)) return false;
+          }
+          return true;
+        });
+
+        document.getElementById('routeCountLabel').textContent = `Hiển thị ${filtered.length} tuyến`;
+
+        if (!filtered.length) {
+          listEl.innerHTML = `
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center border border-slate-200/80 dark:border-slate-800 space-y-2">
+              <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Không tìm thấy tuyến buýt phù hợp</p>
+              <p class="text-[11px] text-slate-400">Thử đổi tỉnh/thành phố, chuyển sang "Toàn quốc" hoặc thêm tuyến mới.</p>
+            </div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered
+          .map((r) => {
+            const prov = getProvinceById(r.provinceId);
+            const isFav = state.favorites.includes(r.id);
+            const firstStop = (r.stopsForward && r.stopsForward[0]?.name) || '';
+            const lastStop = (r.stopsForward && r.stopsForward[r.stopsForward.length - 1]?.name) || '';
+
+            return `
+              <article data-route-id="${escapeHtml(r.id)}" class="route-card bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-blue-400 dark:hover:border-blue-600 transition cursor-pointer">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="px-2.5 py-1 rounded-xl bg-blue-600 text-white text-xs font-extrabold shrink-0">Tuyến ${escapeHtml(r.code)}</span>
+                    <div class="min-w-0">
+                      <h3 class="text-xs font-extrabold truncate">${escapeHtml(r.name)}</h3>
+                      <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">${escapeHtml(prov.short)}</span>
+                        ${r.ev ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">⚡ Buýt điện</span>' : ''}
+                        ${r.airport ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300">✈ Sân bay/Ga</span>' : ''}
+                        ${r.custom ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300">✎ Tự thêm</span>' : ''}
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" data-fav-id="${escapeHtml(r.id)}" class="btn-toggle-fav p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-sm shrink-0" title="Yêu thích">
+                    ${isFav ? '<span class="text-amber-400">★</span>' : '<span class="text-slate-300 dark:text-slate-600">☆</span>'}
+                  </button>
+                </div>
+
+                ${firstStop && lastStop ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2 truncate">📍 ${escapeHtml(firstStop)} → ${escapeHtml(lastStop)}</p>` : ''}
+
+                <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                  <span class="font-bold text-blue-600 dark:text-blue-400">${escapeHtml(r.fare || 'Liên hệ')}</span>
+                  <span class="text-slate-500 dark:text-slate-400 truncate max-w-[65%]">${escapeHtml(r.hours || '')}</span>
+                </div>
+              </article>`;
+          })
+          .join('');
+      }
+
+      // Render Tab 2: Stations
+      function renderStations() {
+        const listEl = document.getElementById('stationsList');
+        const currentProv = getProvinceById(state.settings.currentProvinceId);
+        const q = normalizeText(state.stationSearch);
+
+        document.getElementById('stationScopeLabel').textContent = state.settings.filterByProvince
+          ? `Khu vực: ${currentProv.name}`
+          : 'Phạm vi: Toàn quốc (34 tỉnh/TP)';
+
+        const filtered = state.data.stations.filter((st) => {
+          if (state.settings.filterByProvince && !q && st.provinceId !== currentProv.id) return false;
+          if (state.stationType !== 'all' && st.type !== state.stationType) return false;
+          if (q) {
+            const prov = getProvinceById(st.provinceId);
+            const hay = normalizeText(`${st.name} ${st.address} ${prov.name} ${prov.short}`);
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+
+        document.getElementById('stationCountLabel').textContent = `${filtered.length} bến xe`;
+
+        if (!filtered.length) {
+          listEl.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500">Không tìm thấy bến xe phù hợp.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered
+          .map((st) => {
+            const prov = getProvinceById(st.provinceId);
+            const typeLabel = st.type === 'intercity' ? 'Bến liên tỉnh' : 'Bến nội đô / Đầu mối';
+            const routeBadges = (st.routes || [])
+              .map(
+                (code) =>
+                  `<button type="button" data-filter-route-code="${escapeHtml(code)}" data-prov-id="${escapeHtml(st.provinceId)}" class="btn-station-route px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] font-bold hover:bg-blue-100">Tuyến ${escapeHtml(code)}</button>`
+              )
+              .join('');
+
+            return `
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${st.type === 'intercity' ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'}">${typeLabel}</span>
+                      <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">${escapeHtml(prov.name)}</span>
+                    </div>
+                    <h3 class="text-xs font-extrabold mt-1">${escapeHtml(st.name)}</h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(st.address)}</p>
+                  </div>
+                  <button type="button" data-map-query="${escapeHtml(st.name + ', ' + st.address)}" class="btn-open-map px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold shrink-0 transition">Bản đồ</button>
+                </div>
+                ${routeBadges ? `<div class="flex items-center gap-1.5 flex-wrap pt-1.5 border-t border-slate-100 dark:border-slate-800"><span class="text-[10px] text-slate-400">Tuyến kết nối:</span>${routeBadges}</div>` : ''}
+              </div>`;
+          })
+          .join('');
+      }
+
+      // Render Tab 3: Coaches
+      function renderCoaches() {
+        const listEl = document.getElementById('coachesList');
+        const currentProv = getProvinceById(state.settings.currentProvinceId);
+        const q = normalizeText(state.coachSearch);
+
+        document.getElementById('coachScopeLabel').textContent = state.settings.filterByProvince
+          ? `Liên quan: ${currentProv.short}`
+          : 'Toàn quốc (34 tỉnh/TP)';
+
+        const filtered = state.data.coaches.filter((c) => {
+          if (state.settings.filterByProvince && !q) {
+            if (Array.isArray(c.provinces) && !c.provinces.includes(currentProv.id)) {
+              return false;
+            }
+          }
+          if (q) {
+            const provNames = (c.provinces || []).map((id) => getProvinceById(id).name).join(' ');
+            const hay = normalizeText(`${c.name} ${c.routeText} ${c.vehicleType} ${provNames}`);
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+
+        document.getElementById('coachCountLabel').textContent = `${filtered.length} nhà xe liên tỉnh`;
+
+        if (!filtered.length) {
+          listEl.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500">Không tìm thấy nhà xe phù hợp.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered
+          .map((c) => {
+            const tags = (c.provinces || [])
+              .slice(0, 6)
+              .map((pid) => `<span class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold">${escapeHtml(getProvinceById(pid).short)}</span>`)
+              .join('');
+
+            return `
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <h3 class="text-xs font-extrabold">${escapeHtml(c.name)}</h3>
+                    <p class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold mt-0.5">${escapeHtml(c.routeText)}</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(c.vehicleType || '')}</p>
+                  </div>
+                  ${c.hotline ? `<button type="button" data-copy-text="${escapeHtml(c.hotline)}" class="btn-copy px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold shrink-0">☎ ${escapeHtml(c.hotline)}</button>` : ''}
+                </div>
+                ${tags ? `<div class="flex items-center gap-1 flex-wrap pt-1.5 border-t border-slate-100 dark:border-slate-800">${tags}</div>` : ''}
+              </div>`;
+          })
+          .join('');
+      }
+
+      // Render Tab 4: Settings metrics & summaries
+      function renderSettingsUI() {
+        document.getElementById('metricRoutes').textContent = String(state.data.routes.length);
+        document.getElementById('metricStations').textContent = String(state.data.stations.length);
+        document.getElementById('metricCoaches').textContent = String(state.data.coaches.length);
+
+        const mapSelect = document.getElementById('mapProviderSelect');
+        if (mapSelect) mapSelect.value = state.settings.mapProvider || 'google';
+
+        const mapLabels = {
+          google: 'Google Maps',
+          apple: 'Apple Maps',
+          waze: 'Waze',
+          geo: 'Geo Intent',
+          ask: 'Hỏi mỗi lần mở'
+        };
+        document.getElementById('accMapSummary').textContent = mapLabels[state.settings.mapProvider] || 'Google Maps';
+
+        const keyInput = document.getElementById('geminiApiKeyInput');
+        if (keyInput && keyInput.value !== state.settings.geminiApiKey) {
+          keyInput.value = state.settings.geminiApiKey || '';
+        }
+        document.getElementById('geminiKeyBadge').textContent = state.settings.geminiApiKey ? 'Có Key' : 'Mặc định';
+
+        const dnsSelect = document.getElementById('dnsModeSelect');
+        if (dnsSelect) dnsSelect.value = state.settings.dnsMode || 'default';
+
+        const dnsLabels = {
+          default: 'Mặc định',
+          adguard: 'AdGuard DNS',
+          cloudflare_family: 'Cloudflare 1.1.1.3',
+          quad9: 'Quad9 9.9.9.9'
+        };
+        const connOnline = navigator.onLine;
+        document.getElementById('accNetworkSummary').textContent = `DNS: ${dnsLabels[state.settings.dnsMode] || 'Mặc định'} • ${connOnline ? 'Online' : 'Offline'}`;
+        document.getElementById('liveConnectionState').textContent = connOnline ? 'Trực tuyến (Online)' : 'Ngoại tuyến (Offline)';
+        document.getElementById('liveConnectionState').className = connOnline
+          ? 'font-bold text-emerald-600 dark:text-emerald-400'
+          : 'font-bold text-amber-600 dark:text-amber-400';
+        document.getElementById('liveExternalIp').textContent = state.settings.externalIp || 'Chưa kiểm tra';
+
+        const importModeSelect = document.getElementById('importModeSelect');
+        if (importModeSelect) importModeSelect.value = state.settings.importMode || 'merge';
+      }
+
+      // Route Detail Modal logic
+      function openRouteDetail(routeId) {
+        const route = state.data.routes.find((r) => r.id === routeId);
+        if (!route) return;
+        state.activeDetailRouteId = route.id;
+        state.activeDetailDirection = 'forward';
+
+        const prov = getProvinceById(route.provinceId);
+        document.getElementById('detailRouteCode').textContent = `Tuyến ${route.code}`;
+        document.getElementById('detailRouteProvince').textContent = prov.name;
+        document.getElementById('detailRouteFare').textContent = route.fare || '';
+        document.getElementById('detailRouteName').textContent = route.name;
+        document.getElementById('detailRouteHours').textContent = route.hours || '';
+
+        updateDetailFavButton();
+        renderDetailStops();
+        document.getElementById('routeDetailModal').classList.remove('hidden');
+      }
+
+      function updateDetailFavButton() {
+        const btn = document.getElementById('btnDetailFav');
+        if (!btn || !state.activeDetailRouteId) return;
+        const isFav = state.favorites.includes(state.activeDetailRouteId);
+        btn.textContent = isFav ? '★ Đã lưu' : '☆ Lưu';
+      }
+
+      function renderDetailStops() {
+        const route = state.data.routes.find((r) => r.id === state.activeDetailRouteId);
+        const container = document.getElementById('detailStopsContainer');
+        if (!route || !container) return;
+
+        const btnFwd = document.getElementById('btnDirForward');
+        const btnRet = document.getElementById('btnDirReturn');
+        if (state.activeDetailDirection === 'forward') {
+          btnFwd.className = 'px-3 py-1 rounded-lg bg-blue-600 text-white transition';
+          btnRet.className = 'px-3 py-1 rounded-lg text-slate-700 dark:text-slate-200 transition';
+        } else {
+          btnRet.className = 'px-3 py-1 rounded-lg bg-blue-600 text-white transition';
+          btnFwd.className = 'px-3 py-1 rounded-lg text-slate-700 dark:text-slate-200 transition';
+        }
+
+        let stops = state.activeDetailDirection === 'forward' ? route.stopsForward || [] : route.stopsReturn || [];
+        if (state.activeDetailDirection === 'return' && (!stops || stops.length === 0)) {
+          stops = [...(route.stopsForward || [])].reverse();
+        }
+
+        if (!stops.length) {
+          container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Chưa có danh sách điểm dừng cho chiều này.</p>`;
+          return;
+        }
+
+        container.innerHTML = stops
+          .map((stop, index) => {
+            const isFirst = index === 0;
+            const isLast = index === stops.length - 1;
+            const dotColor = isFirst ? 'bg-emerald-500' : isLast ? 'bg-rose-500' : 'bg-blue-600';
+            const fullAddress = stop.address ? `${stop.name}, ${stop.address}` : stop.name;
+
+            return `
+              <div class="flex items-start gap-3">
+                <div class="flex flex-col items-center pt-1">
+                  <span class="w-3 h-3 rounded-full ${dotColor} ring-4 ring-blue-500/15 shrink-0"></span>
+                  ${!isLast ? '<span class="w-0.5 h-8 bg-slate-200 dark:bg-slate-700 my-1"></span>' : ''}
+                </div>
+                <div class="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-2.5 border border-slate-200/70 dark:border-slate-700/70">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                      <p class="text-xs font-bold truncate">${escapeHtml(stop.name)}</p>
+                      ${stop.address ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(stop.address)}</p>` : ''}
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button type="button" data-copy-text="${escapeHtml(fullAddress)}" class="btn-copy px-2 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[10px] font-bold hover:bg-slate-100">Chép</button>
+                      <button type="button" data-map-query="${escapeHtml(fullAddress)}" class="btn-open-map px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold hover:bg-blue-700">Bản đồ</button>
+                    </div>
+                  </div>
+                </div>
+              </div>`;
+          })
+          .join('');
+      }
+
+      // Route CRUD Modal
+      function parseStopLines(rawText) {
+        return String(rawText || '')
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const parts = line.split(' - ');
+            if (parts.length > 1) {
+              return { name: parts[0].trim(), address: parts.slice(1).join(' - ').trim() };
+            }
+            return { name: line, address: '' };
+          });
+      }
+
+      function openRouteForm(existingRouteId = null) {
+        const modal = document.getElementById('routeFormModal');
+        const titleEl = document.getElementById('routeFormTitle');
+        const idInput = document.getElementById('formRouteId');
+        const codeInput = document.getElementById('formRouteCode');
+        const provSelect = document.getElementById('formRouteProvince');
+        const nameInput = document.getElementById('formRouteName');
+        const fareInput = document.getElementById('formRouteFare');
+        const hoursInput = document.getElementById('formRouteHours');
+        const evCheckbox = document.getElementById('formRouteEv');
+        const airportCheckbox = document.getElementById('formRouteAirport');
+        const fwdTextarea = document.getElementById('formStopsForward');
+        const retTextarea = document.getElementById('formStopsReturn');
+
+        if (existingRouteId) {
+          const route = state.data.routes.find((r) => r.id === existingRouteId);
+          if (!route) return;
+          titleEl.textContent = `Sửa tuyến ${route.code}`;
+          idInput.value = route.id;
+          codeInput.value = route.code;
+          provSelect.value = route.provinceId;
+          nameInput.value = route.name;
+          fareInput.value = route.fare || '';
+          hoursInput.value = route.hours || '';
+          evCheckbox.checked = Boolean(route.ev);
+          airportCheckbox.checked = Boolean(route.airport);
+          fwdTextarea.value = (route.stopsForward || []).map((s) => (s.address ? `${s.name} - ${s.address}` : s.name)).join('\n');
+          retTextarea.value = (route.stopsReturn || []).map((s) => (s.address ? `${s.name} - ${s.address}` : s.name)).join('\n');
+        } else {
+          titleEl.textContent = 'Thêm tuyến buýt mới';
+          idInput.value = '';
+          codeInput.value = '';
+          provSelect.value = state.settings.currentProvinceId;
+          nameInput.value = '';
+          fareInput.value = '8.000đ';
+          hoursInput.value = '05:00 - 21:00 • 15p/chuyến';
+          evCheckbox.checked = false;
+          airportCheckbox.checked = false;
+          fwdTextarea.value = '';
+          retTextarea.value = '';
+        }
+
+        modal.classList.remove('hidden');
+      }
+
+      // Backup / Restore / TXT / JSON
+      function exportDataFile(format) {
+        try {
+          const timestamp = new Date().toISOString().slice(0, 10);
+          let content = '';
+          let filename = `buyt-34-tinh-${timestamp}`;
+          let mime = 'application/json;charset=utf-8';
+
+          if (format === 'json') {
+            content = JSON.stringify(
+              {
+                app: 'Buyt & Ben xe Viet Nam (34 Tinh/TP)',
+                version: '1.4',
+                exportedAt: new Date().toISOString(),
+                routes: state.data.routes,
+                stations: state.data.stations,
+                coaches: state.data.coaches
+              },
+              null,
+              2
+            );
+            filename += '.json';
+          } else {
+            const lines = [];
+            state.data.routes.forEach((r) => {
+              const provName = getProvinceById(r.provinceId).name;
+              const fwd = (r.stopsForward || []).map((s) => (s.address ? `${s.name} (${s.address})` : s.name)).join(' -> ');
+              lines.push(`TUYEN: ${r.code} | TINH: ${provName} | TEN: ${r.name} | GIA: ${r.fare || ''} | GIO: ${r.hours || ''} | LO: ${fwd}`);
+            });
+            content = lines.join('\n');
+            filename += '.txt';
+            mime = 'text/plain;charset=utf-8';
+          }
+
+          const blob = new Blob([content], { type: mime });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(`Đã xuất file ${filename}`);
+        } catch (err) {
+          showToast('Lỗi xuất file: ' + err.message);
+        }
+      }
+
+      function downloadSampleTxt() {
+        const sample = [
+          'TUYEN: 99 | TINH: Hà Nội | TEN: Bến xe Mỹ Đình - Cổ Loa | GIA: 8.000đ | GIO: 05:00 - 21:00 • 20p/chuyến | LO: Bến xe Mỹ Đình -> Cầu Nhật Tân -> Khu di tích Cổ Loa',
+          'TUYEN: 88 | TINH: TP. Hồ Chí Minh | TEN: Bến xe An Sương - Khu Công nghệ cao | GIA: 7.000đ | GIO: 05:15 - 20:30 • 15p/chuyến | LO: Bến xe An Sương -> Quốc lộ 1A -> Khu Công nghệ cao'
+        ].join('\n');
+        const blob = new Blob([sample], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mau-tuyen-buyt-34-tinh.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Đã tải file TXT mẫu');
+      }
+
+      function ingestImportedText(rawText, mode = 'merge') {
+        const trimmed = String(rawText || '').trim();
+        if (!trimmed) {
+          showToast('Nội dung nhập trống');
+          return;
+        }
+
+        let importedRoutes = [];
+        let importedStations = null;
+        let importedCoaches = null;
+
+        try {
+          const parsedJson = JSON.parse(trimmed);
+          if (Array.isArray(parsedJson)) {
+            importedRoutes = parsedJson;
+          } else if (parsedJson && Array.isArray(parsedJson.routes)) {
+            importedRoutes = parsedJson.routes;
+            if (Array.isArray(parsedJson.stations)) importedStations = parsedJson.stations;
+            if (Array.isArray(parsedJson.coaches)) importedCoaches = parsedJson.coaches;
+          }
+        } catch (_) {
+          // Parse TXT format: TUYEN: ... | TINH: ... | TEN: ... | GIA: ... | GIO: ... | LO: ...
+          const lines = trimmed.split('\n').map((l) => l.trim()).filter(Boolean);
+          lines.forEach((line, idx) => {
+            const parts = line.split('|').map((p) => p.trim());
+            const kv = {};
+            parts.forEach((p) => {
+              const colonIdx = p.indexOf(':');
+              if (colonIdx > -1) {
+                const k = normalizeText(p.slice(0, colonIdx));
+                const v = p.slice(colonIdx + 1).trim();
+                kv[k] = v;
+              }
+            });
+
+            if (kv.tuyen || kv.ten) {
+              const matchedProv =
+                PROVINCES_34.find(
+                  (p) => normalizeText(p.name) === normalizeText(kv.tinh) || normalizeText(p.short) === normalizeText(kv.tinh)
+                ) || getProvinceById(state.settings.currentProvinceId);
+
+              const stops = (kv.lo || '')
+                .split('->')
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((name) => ({ name, address: matchedProv.name }));
+
+              importedRoutes.push({
+                id: `r-imp-${Date.now()}-${idx}`,
+                code: kv.tuyen || String(idx + 1),
+                provinceId: matchedProv.id,
+                name: kv.ten || `Tuyến ${kv.tuyen || idx + 1}`,
+                fare: kv.gia || '8.000đ',
+                hours: kv.gio || '05:00 - 21:00',
+                ev: false,
+                airport: false,
+                custom: true,
+                stopsForward: stops,
+                stopsReturn: []
+              });
+            }
+          });
+        }
+
+        if (!importedRoutes.length) {
+          showToast('Không nhận diện được dữ liệu tuyến hợp lệ');
+          return;
+        }
+
+        const normalizedRoutes = importedRoutes.map((r, i) => ({
+          id: r.id || `r-imp-${Date.now()}-${i}`,
+          code: String(r.code || i + 1),
+          provinceId: PROVINCES_34.some((p) => p.id === r.provinceId) ? r.provinceId : state.settings.currentProvinceId,
+          name: String(r.name || 'Tuyến buýt'),
+          fare: String(r.fare || '8.000đ'),
+          hours: String(r.hours || '05:00 - 21:00'),
+          ev: Boolean(r.ev),
+          airport: Boolean(r.airport),
+          custom: true,
+          stopsForward: Array.isArray(r.stopsForward) ? r.stopsForward : [],
+          stopsReturn: Array.isArray(r.stopsReturn) ? r.stopsReturn : []
+        }));
+
+        if (mode === 'replace') {
+          state.data.routes = normalizedRoutes;
+          if (importedStations) state.data.stations = importedStations;
+          if (importedCoaches) state.data.coaches = importedCoaches;
+        } else {
+          const mapById = new Map(state.data.routes.map((item) => [item.id, item]));
+          normalizedRoutes.forEach((item) => mapById.set(item.id, item));
+          state.data.routes = Array.from(mapById.values());
+        }
+
+        saveData();
+        renderAll();
+        showToast(`Đã nạp ${normalizedRoutes.length} tuyến (${mode === 'replace' ? 'Ghi đè' : 'Gộp'})`);
+      }
+
+      // Gemini Online Sync (gemini-3-flash-preview + Google Search tool)
+      function appendSyncLog(text) {
+        const logEl = document.getElementById('geminiSyncLog');
+        if (!logEl) return;
+        const line = document.createElement('div');
+        line.textContent = `[${new Date().toLocaleTimeString('vi-VN')}] ${text}`;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      async function runGeminiSync() {
+        const apiKey = (document.getElementById('geminiApiKeyInput').value || state.settings.geminiApiKey || '').trim();
+        const scope = document.getElementById('geminiScopeSelect').value;
+        const box = document.getElementById('geminiSyncBox');
+        const bar = document.getElementById('geminiProgressBar');
+        const logEl = document.getElementById('geminiSyncLog');
+
+        box.classList.remove('hidden');
+        logEl.innerHTML = '';
+        bar.style.width = '10%';
+
+        const targets =
+          scope === 'top_regions'
+            ? [
+                getProvinceById('ha-noi'),
+                getProvinceById('hai-phong'),
+                getProvinceById('hue'),
+                getProvinceById('da-nang'),
+                getProvinceById('ho-chi-minh'),
+                getProvinceById('can-tho')
+              ]
+            : [getProvinceById(state.settings.currentProvinceId)];
+
+        appendSyncLog(`Bắt đầu đồng bộ ${targets.length} địa phương với gemini-3-flash-preview...`);
+
+        if (!apiKey) {
+          appendSyncLog('Chưa nhập Gemini API Key -> Chạy đồng bộ mô phỏng & kiểm tra dữ liệu offline 34 tỉnh/TP.');
+          for (let i = 0; i < targets.length; i++) {
+            const p = targets[i];
+            await new Promise((r) => setTimeout(r, 260));
+            const pct = Math.round(((i + 1) / targets.length) * 100);
+            bar.style.width = `${pct}%`;
+            const count = state.data.routes.filter((x) => x.provinceId === p.id).length;
+            appendSyncLog(`✓ ${p.name}: ${count} tuyến buýt sẵn sàng offline.`);
+          }
+          showToast('Hoàn tất đồng bộ dữ liệu offline');
+          return;
+        }
+
+        let addedCount = 0;
+        for (let i = 0; i < targets.length; i++) {
+          const prov = targets[i];
+          appendSyncLog(`Đang tra cứu tuyến buýt mới tại ${prov.name}...`);
+          try {
+            const prompt = `Liệt kê tối đa 2 tuyến xe buýt công cộng tiêu biểu tại ${prov.name}, Việt Nam. Trả về JSON thuần túy dạng mảng: [{"code":"","name":"","fare":"","hours":"","stops":["điểm 1","điểm 2"]}]`;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+            const resp = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                tools: [{ google_search: {} }]
+              })
+            });
+
+            if (!resp.ok) {
+              throw new Error(`HTTP ${resp.status}`);
+            }
+
+            const data = await resp.json();
+            const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              const items = JSON.parse(jsonMatch[0]);
+              if (Array.isArray(items)) {
+                items.forEach((item, idx) => {
+                  if (!item || !item.name) return;
+                  const newRoute = {
+                    id: `r-gem-${prov.id}-${Date.now()}-${idx}`,
+                    code: String(item.code || `G${idx + 1}`),
+                    provinceId: prov.id,
+                    name: String(item.name),
+                    fare: String(item.fare || '8.000đ'),
+                    hours: String(item.hours || '05:00 - 21:00'),
+                    ev: false,
+                    airport: normalizeText(item.name).includes('san bay'),
+                    custom: true,
+                    stopsForward: Array.isArray(item.stops)
+                      ? item.stops.map((s) => ({ name: String(s), address: prov.name }))
+                      : [],
+                    stopsReturn: []
+                  };
+                  state.data.routes.unshift(newRoute);
+                  addedCount++;
+                });
+              }
+            }
+            appendSyncLog(`✓ Xong ${prov.name}`);
+          } catch (err) {
+            appendSyncLog(`⚠ Lỗi tại ${prov.name}: ${err.message}`);
+          }
+          bar.style.width = `${Math.round(((i + 1) / targets.length) * 100)}%`;
+        }
+
+        if (addedCount > 0) {
+          saveData();
+          renderAll();
+        }
+        appendSyncLog(`Hoàn tất! Đã thêm/cập nhật ${addedCount} tuyến.`);
+        showToast(`Đồng bộ Gemini hoàn tất (+${addedCount} tuyến)`);
+      }
+
+      // Network / IP / Permissions check
+      async function checkExternalIp() {
+        const ipEl = document.getElementById('liveExternalIp');
+        if (ipEl) ipEl.textContent = 'Đang kiểm tra...';
+        try {
+          const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+          if (!res.ok) throw new Error('Không thể lấy IP');
+          const json = await res.json();
+          state.settings.externalIp = json.ip || 'Không xác định';
+          saveSettings();
+          renderSettingsUI();
+          showToast('IP ngoài: ' + state.settings.externalIp);
+        } catch (_) {
+          state.settings.externalIp = navigator.onLine ? 'Không truy cập được dịch vụ IP' : 'Offline';
+          renderSettingsUI();
+          showToast('Không thể kiểm tra IP ngoài lúc này');
+        }
+      }
+
+      async function checkGeolocationPermission() {
+        const permEl = document.getElementById('liveGeoPermission');
+        try {
+          if (navigator.permissions && navigator.permissions.query) {
+            const status = await navigator.permissions.query({ name: 'geolocation' });
+            permEl.textContent = status.state;
+          } else {
+            permEl.textContent = 'Sẵn sàng';
+          }
+        } catch (_) {
+          permEl.textContent = 'Không hỗ trợ truy vấn';
+        }
+      }
+
+      // Accordion behavior in Settings (collapsed by default, expands when selected)
+      function initAccordions() {
+        const triggers = document.querySelectorAll('.accordion-trigger');
+        triggers.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-accordion-target');
+            const panel = document.getElementById(targetId);
+            const chevron = btn.querySelector('.accordion-chevron');
+            if (!panel) return;
+
+            const isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+              panel.classList.remove('hidden');
+              btn.setAttribute('aria-expanded', 'true');
+              if (chevron) chevron.classList.add('rotate-180');
+            } else {
+              panel.classList.add('hidden');
+              btn.setAttribute('aria-expanded', 'false');
+              if (chevron) chevron.classList.remove('rotate-180');
+            }
+          });
+        });
+      }
+
+      // Tab Switching
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        ['routes', 'stations', 'coaches', 'settings'].forEach((t) => {
+          const section = document.getElementById(`tab-${t}`);
+          if (section) {
+            section.classList.toggle('hidden', t !== tabName);
+          }
+        });
+
+        document.querySelectorAll('.nav-tab').forEach((btn) => {
+          const isCurrent = btn.getAttribute('data-tab') === tabName;
+          btn.className = isCurrent
+            ? 'nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/50 transition'
+            : 'nav-tab flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition';
+        });
+
+        if (tabName === 'settings') {
+          renderSettingsUI();
+          checkGeolocationPermission();
+        }
+      }
+
+      function renderAll() {
+        renderProvinceControls();
+        renderRoutes();
+        renderStations();
+        renderCoaches();
+        renderSettingsUI();
+      }
+
+      // Event Listeners Wiring
+      function bindEvents() {
+        // Bottom Nav
+        document.querySelectorAll('.nav-tab').forEach((btn) => {
+          btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+        });
+
+        // Theme toggle
+        document.getElementById('btnThemeToggle').addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          try {
+            localStorage.setItem(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
+          } catch (_) {}
+          updateThemeIcons();
+        });
+
+        // Quick sync button in header
+        document.getElementById('btnQuickSync').addEventListener('click', () => {
+          switchTab('settings');
+          const panel = document.getElementById('acc-gemini');
+          if (panel && panel.classList.contains('hidden')) {
+            document.querySelector('[data-accordion-target="acc-gemini"]')?.click();
+          }
+          runGeminiSync();
+        });
+
+        // Province Dropdown & Quick Chips & Scope toggle
+        document.getElementById('provinceSelect').addEventListener('change', (e) => {
+          state.settings.currentProvinceId = e.target.value;
+          saveSettings();
+          renderAll();
+        });
+
+        document.getElementById('quickProvinceChips').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-quick-prov]');
+          if (!btn) return;
+          state.settings.currentProvinceId = btn.getAttribute('data-quick-prov');
+          saveSettings();
+          renderAll();
+        });
+
+        document.getElementById('btnFilterCurrentProvince').addEventListener('click', () => {
+          state.settings.filterByProvince = !state.settings.filterByProvince;
+          saveSettings();
+          renderAll();
+          showToast(state.settings.filterByProvince ? 'Đang lọc theo tỉnh/TP đã chọn' : 'Đang hiển thị toàn quốc (34 tỉnh/TP)');
+        });
+
+        // Route Search & Clear
+        const routeSearchInput = document.getElementById('routeSearchInput');
+        const btnClearRouteSearch = document.getElementById('btnClearRouteSearch');
+        routeSearchInput.addEventListener('input', (e) => {
+          state.routeSearch = e.target.value;
+          btnClearRouteSearch.classList.toggle('hidden', !state.routeSearch);
+          renderRoutes();
+        });
+        btnClearRouteSearch.addEventListener('click', () => {
+          routeSearchInput.value = '';
+          state.routeSearch = '';
+          btnClearRouteSearch.classList.add('hidden');
+          renderRoutes();
+        });
+
+        // Route Chips
+        document.querySelectorAll('.route-chip').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            state.routeChip = chip.getAttribute('data-route-chip');
+            document.querySelectorAll('.route-chip').forEach((c) => {
+              const active = c === chip;
+              c.className = active
+                ? 'route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-600 text-white shrink-0 transition'
+                : 'route-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition';
+            });
+            renderRoutes();
+          });
+        });
+
+        // Route List clicks (open detail or toggle favorite)
+        document.getElementById('routesList').addEventListener('click', (e) => {
+          const favBtn = e.target.closest('.btn-toggle-fav');
+          if (favBtn) {
+            e.stopPropagation();
+            const rid = favBtn.getAttribute('data-fav-id');
+            if (state.favorites.includes(rid)) {
+              state.favorites = state.favorites.filter((id) => id !== rid);
+            } else {
+              state.favorites.push(rid);
+            }
+            saveFavorites();
+            renderRoutes();
+            return;
+          }
+          const card = e.target.closest('.route-card');
+          if (card) {
+            openRouteDetail(card.getAttribute('data-route-id'));
+          }
+        });
+
+        // Station search, chips, map & route connect
+        document.getElementById('stationSearchInput').addEventListener('input', (e) => {
+          state.stationSearch = e.target.value;
+          renderStations();
+        });
+
+        document.querySelectorAll('.station-chip').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            state.stationType = chip.getAttribute('data-station-type');
+            document.querySelectorAll('.station-chip').forEach((c) => {
+              const active = c === chip;
+              c.className = active
+                ? 'station-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-600 text-white shrink-0 transition'
+                : 'station-chip px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 transition';
+            });
+            renderStations();
+          });
+        });
+
+        document.getElementById('stationsList').addEventListener('click', (e) => {
+          const routeBtn = e.target.closest('.btn-station-route');
+          if (routeBtn) {
+            const code = routeBtn.getAttribute('data-filter-route-code');
+            const provId = routeBtn.getAttribute('data-prov-id');
+            if (provId) {
+              state.settings.currentProvinceId = provId;
+              saveSettings();
+            }
+            state.routeSearch = code;
+            document.getElementById('routeSearchInput').value = code;
+            document.getElementById('btnClearRouteSearch').classList.remove('hidden');
+            switchTab('routes');
+            renderAll();
+            return;
+          }
+          const mapBtn = e.target.closest('.btn-open-map');
+          if (mapBtn) {
+            openMapNavigation(mapBtn.getAttribute('data-map-query'));
+          }
+        });
+
+        // Coach search & copy
+        document.getElementById('coachSearchInput').addEventListener('input', (e) => {
+          state.coachSearch = e.target.value;
+          renderCoaches();
+        });
+
+        document.addEventListener('click', (e) => {
+          const copyBtn = e.target.closest('.btn-copy');
+          if (copyBtn) {
+            copyToClipboard(copyBtn.getAttribute('data-copy-text'));
+          }
+          const mapBtn = e.target.closest('#detailStopsContainer .btn-open-map');
+          if (mapBtn) {
+            openMapNavigation(mapBtn.getAttribute('data-map-query'));
+          }
+        });
+
+        // Route Detail Modal actions
+        document.getElementById('btnCloseDetailModal').addEventListener('click', () => {
+          document.getElementById('routeDetailModal').classList.add('hidden');
+        });
+        document.getElementById('btnDirForward').addEventListener('click', () => {
+          state.activeDetailDirection = 'forward';
+          renderDetailStops();
+        });
+        document.getElementById('btnDirReturn').addEventListener('click', () => {
+          state.activeDetailDirection = 'return';
+          renderDetailStops();
+        });
+        document.getElementById('btnDetailFav').addEventListener('click', () => {
+          if (!state.activeDetailRouteId) return;
+          if (state.favorites.includes(state.activeDetailRouteId)) {
+            state.favorites = state.favorites.filter((id) => id !== state.activeDetailRouteId);
+          } else {
+            state.favorites.push(state.activeDetailRouteId);
+          }
+          saveFavorites();
+          updateDetailFavButton();
+          renderRoutes();
+        });
+        document.getElementById('btnDetailEdit').addEventListener('click', () => {
+          const id = state.activeDetailRouteId;
+          document.getElementById('routeDetailModal').classList.add('hidden');
+          openRouteForm(id);
+        });
+        document.getElementById('btnDetailDelete').addEventListener('click', () => {
+          const id = state.activeDetailRouteId;
+          const route = state.data.routes.find((r) => r.id === id);
+          if (!route) return;
+          openConfirm('Xóa tuyến buýt', `Bạn chắc chắn muốn xóa tuyến ${route.code} - ${route.name}?`, () => {
+            state.data.routes = state.data.routes.filter((r) => r.id !== id);
+            state.favorites = state.favorites.filter((fid) => fid !== id);
+            saveData();
+            saveFavorites();
+            document.getElementById('routeDetailModal').classList.add('hidden');
+            renderAll();
+            showToast('Đã xóa tuyến buýt');
+          });
+        });
+
+        // Route CRUD Modal
+        document.getElementById('btnOpenAddRoute').addEventListener('click', () => openRouteForm(null));
+        document.getElementById('btnCloseRouteFormModal').addEventListener('click', () => {
+          document.getElementById('routeFormModal').classList.add('hidden');
+        });
+
+        document.getElementById('routeCrudForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const idVal = document.getElementById('formRouteId').value.trim();
+          const codeVal = document.getElementById('formRouteCode').value.trim();
+          const provVal = document.getElementById('formRouteProvince').value;
+          const nameVal = document.getElementById('formRouteName').value.trim();
+          const fareVal = document.getElementById('formRouteFare').value.trim() || '8.000đ';
+          const hoursVal = document.getElementById('formRouteHours').value.trim() || '05:00 - 21:00';
+          const evVal = document.getElementById('formRouteEv').checked;
+          const airportVal = document.getElementById('formRouteAirport').checked;
+          const fwdStops = parseStopLines(document.getElementById('formStopsForward').value);
+          const retStops = parseStopLines(document.getElementById('formStopsReturn').value);
+
+          if (!codeVal || !nameVal) {
+            showToast('Vui lòng nhập mã tuyến và tên tuyến');
+            return;
+          }
+
+          if (idVal) {
+            const idx = state.data.routes.findIndex((r) => r.id === idVal);
+            if (idx > -1) {
+              state.data.routes[idx] = {
+                ...state.data.routes[idx],
+                code: codeVal,
+                provinceId: provVal,
+                name: nameVal,
+                fare: fareVal,
+                hours: hoursVal,
+                ev: evVal,
+                airport: airportVal,
+                custom: true,
+                stopsForward: fwdStops,
+                stopsReturn: retStops
+              };
+            }
+            showToast('Đã cập nhật tuyến buýt');
+          } else {
+            state.data.routes.unshift({
+              id: `r-custom-${Date.now()}`,
+              code: codeVal,
+              provinceId: provVal,
+              name: nameVal,
+              fare: fareVal,
+              hours: hoursVal,
+              ev: evVal,
+              airport: airportVal,
+              custom: true,
+              stopsForward: fwdStops,
+              stopsReturn: retStops
+            });
+            showToast('Đã thêm tuyến buýt mới');
+          }
+
+          saveData();
+          document.getElementById('routeFormModal').classList.add('hidden');
+          renderAll();
+        });
+
+        // Map Picker Modal
+        document.getElementById('btnCloseMapPicker').addEventListener('click', () => {
+          document.getElementById('mapPickerModal').classList.add('hidden');
+        });
+        document.querySelectorAll('.map-choice-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const choice = btn.getAttribute('data-map-choice');
+            const dest = state.pendingMapDestination;
+            document.getElementById('mapPickerModal').classList.add('hidden');
+            if (dest) launchMapWithProvider(dest, choice);
+          });
+        });
+
+        // Confirm Modal
+        document.getElementById('btnConfirmCancel').addEventListener('click', closeConfirm);
+        document.getElementById('btnConfirmOk').addEventListener('click', () => {
+          const cb = state.pendingConfirmCallback;
+          closeConfirm();
+          if (typeof cb === 'function') cb();
+        });
+
+        // Toast close
+        document.getElementById('btnCloseToast').addEventListener('click', () => {
+          document.getElementById('toastBanner').classList.add('hidden');
+        });
+
+        // Settings: Map provider
+        document.getElementById('btnSaveMapProvider').addEventListener('click', () => {
+          state.settings.mapProvider = document.getElementById('mapProviderSelect').value;
+          saveSettings();
+          renderSettingsUI();
+          showToast('Đã lưu ứng dụng bản đồ mặc định');
+        });
+
+        // Settings: Gemini
+        document.getElementById('btnSaveGeminiKey').addEventListener('click', () => {
+          state.settings.geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
+          saveSettings();
+          renderSettingsUI();
+          showToast('Đã lưu cấu hình Gemini API Key');
+        });
+        document.getElementById('btnRunGeminiSync').addEventListener('click', runGeminiSync);
+
+        // Settings: Backup / Restore / TXT / Reset
+        document.getElementById('btnExportJson').addEventListener('click', () => exportDataFile('json'));
+        document.getElementById('btnExportTxt').addEventListener('click', () => exportDataFile('txt'));
+        document.getElementById('btnDownloadSampleTxt').addEventListener('click', downloadSampleTxt);
+        document.getElementById('importModeSelect').addEventListener('change', (e) => {
+          state.settings.importMode = e.target.value;
+          saveSettings();
+        });
+
+        document.getElementById('importFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            ingestImportedText(String(ev.target?.result || ''), state.settings.importMode || 'merge');
+            e.target.value = '';
+          };
+          reader.readAsText(file, 'utf-8');
+        });
+
+        document.getElementById('btnImportPastedData').addEventListener('click', () => {
+          const raw = document.getElementById('pasteDataTextarea').value;
+          ingestImportedText(raw, state.settings.importMode || 'merge');
+        });
+
+        document.getElementById('btnResetDefaultData').addEventListener('click', () => {
+          openConfirm('Khôi phục dữ liệu gốc', 'Khôi phục toàn bộ dữ liệu mẫu 34 tỉnh/TP và xóa các tuyến tự thêm?', () => {
+            state.data = buildFull34Dataset();
+            state.favorites = [];
+            saveData();
+            saveFavorites();
+            renderAll();
+            showToast('Đã khôi phục dữ liệu gốc 34 tỉnh/TP');
+          });
+        });
+
+        // Settings: Network / IP / GPS / DNS
+        document.getElementById('btnCheckIp').addEventListener('click', checkExternalIp);
+        document.getElementById('btnRequestGeo').addEventListener('click', () => {
+          if (!navigator.geolocation) {
+            showToast('Thiết bị không hỗ trợ định vị GPS');
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              document.getElementById('liveGeoPermission').textContent = `Đã cấp (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`;
+              showToast('Đã xác nhận quyền vị trí GPS');
+            },
+            () => {
+              checkGeolocationPermission();
+              showToast('Chưa cấp quyền vị trí hoặc bị từ chối');
+            }
+          );
+        });
+
+        document.getElementById('btnSaveNetworkSettings').addEventListener('click', () => {
+          state.settings.dnsMode = document.getElementById('dnsModeSelect').value;
+          saveSettings();
+          renderSettingsUI();
+          showToast('Đã lưu cấu hình Mạng & DNS');
+        });
+
+        window.addEventListener('online', renderSettingsUI);
+        window.addEventListener('offline', renderSettingsUI);
+      }
+
+      function updateThemeIcons() {
+        const isDark = document.documentElement.classList.contains('dark');
+        document.getElementById('iconSun').classList.toggle('hidden', !isDark);
+        document.getElementById('iconMoon').classList.toggle('hidden', isDark);
+      }
+
+      // Live real-time clock
+      function startLiveClock() {
+        const updateClock = () => {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false });
+          const dateStr = now.toLocaleDateString('vi-VN');
+          const detailEl = document.getElementById('liveClockDetail');
+          if (detailEl) detailEl.textContent = `${dateStr} • ${timeStr}`;
+        };
+        updateClock();
+        setInterval(updateClock, 1000);
+      }
+
+      // Initialize App
+      window.addEventListener('DOMContentLoaded', () => {
+        loadPersistedState();
+        updateThemeIcons();
+        initAccordions();
+        bindEvents();
+        renderAll();
+        startLiveClock();
+      });
+    })();
+  </script>
+</body>
+</html>
